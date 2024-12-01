@@ -18,6 +18,8 @@ int main()
     }
 
     Player *user = playerSetup(); // 유저 생성
+    Gotxy(3,5);
+    cout<<"a";
 
     // main loop
     while ((ch = getch()) != 'q')

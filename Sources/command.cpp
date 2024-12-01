@@ -24,7 +24,7 @@ void checkPosition(int newy, int newx, Player *user, Map *map)
     int Attribute = GetAttribute(map, newy - map->yPosition, newx - map->xPosition);
 
     // 속성이 '0' (통로)일 경우에만 이동
-    if (Attribute == 0) {
+    if (Attribute == 0 || Attribute == 2) {
         playerMove(newy, newx, user);
     }
 }

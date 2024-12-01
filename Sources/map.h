@@ -31,7 +31,7 @@ public:
 void SetAttribute(Map *map, int x, int y, int A);
 
 // 속성 확인 함수
-int GetAttribute(const Map *map, int x, int y);
+int GetAttribute(Map *map, int x, int y);
 
 // 장소를 특정장소에 만들기위한 좌표이동 함수
 void Gotxy(int x, int y);
@@ -46,4 +46,4 @@ Map **mapSetup();
 void drawMap(Map *R);
 
 // 장소 문과 문 연결 함수
-void connectDoor(Position door1,Position door2);
+void connectDoor(Map *map1, Position *door1, Map *map2, Position *door2);
