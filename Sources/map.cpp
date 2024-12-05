@@ -1,198 +1,151 @@
-#include "map.h"
-#include <time.h>
-using namespace std;
+#include "header.h"
+#include <ctime>
 
-Map::Map(int x, int y, int h, int w) : xPosition(x), yPosition(y), height(h), width(w)
+Map::Map(int x, int y, int w, int h) : coordinate({x, y}), width(w), height(h)
 {
-    // 장소의 속성을 동적할당하여 배열로 만듦
-    Attribute = new int *[width];
-    for (int i = 0; i < width; ++i)
+    doors = new Position *[4]; // 문은 4개
+    for (int i = 0; i < 4; ++i)
     {
-        Attribute[i] = new int[height];
-        for (int j = 0; j < height; ++j)
-        {
-            Attribute[i][j] = 0; // 0으로 초기화
-        }
+        doors[i] = new Position{0, 0}; // 초기화
     }
 }
 
 Map::~Map()
 {
-    // 동적할당된 속성을 동적할당 해제문
-    for (int i = 0; i < height; ++i)
+    for (int i = 0; i < 4; ++i)
     {
-        delete[] Attribute[i];
+        delete doors[i]; // 각 문 해제
     }
-    delete[] Attribute;
+    delete[] doors;
 }
 
-void SetAttribute(Map *map, int x, int y, int A)
+Map **MapSetUp()
 {
-    if (x >= 0 && x < map->width && y >= 0 && y < map->height)
-    {
-        map->Attribute[x][y] = A; // int A에 적은 속성값 부여
-    }
+    int setup = 3; // 장소 수 설정
+    Map **maps = new Map *[setup];
+    maps[0] = CreateMap(13, 13, 8, 6);
+    maps[1] = CreateMap(40, 2, 8, 6);
+    maps[2] = CreateMap(40, 10, 8, 6);
+    ConnectDoor(maps[0]->doors[3], maps[2]->doors[1]);
+    return maps;
 }
 
-int GetAttribute(Map *map, int x, int y)
+Map *CreateMap(int x, int y, int w, int h)
 {
-    if (x >= 0 && x < map->width && y >= 0 && y < map->height)
-    {
-        return map->Attribute[x][y];
-    }
-    return -1; // 유효하지 않은 좌표일 경우
-}
+    Map *newmap = new Map(x, y, w, h);
 
-// 특정 좌표로 커서 옮기기
-void Gotxy(int x, int y)
-{
-    if (x < 0)
-        x = 0;
-    if (y < 0)
-        y = 0;
-    COORD Pos = {static_cast<SHORT>(y), static_cast<SHORT>(x)};
-    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Pos);
-}
-
-Map *createMap(int x, int y, int h, int w)
-{
-    Map *newmap = new Map(x, y, h, w);
-
-    newmap->xPosition = x;
-    newmap->yPosition = y;
-    newmap->height = h;
-    newmap->width = w;
     // 문을 랜덤한 위치에 만듦
     srand(time(NULL));
     // 위쪽문
-    newmap->door[0].x = rand() % (w - 2) + (newmap->xPosition) + 1;
-    newmap->door[0].y = newmap->yPosition;
+    newmap->doors[0]->x = (rand() % (newmap->width - 2)) + 1 + (newmap->coordinate.x);
+    newmap->doors[0]->y = newmap->coordinate.y;
 
     // 좌측문
-    newmap->door[1].y = rand() % (h - 2) + (newmap->yPosition) + 1;
-    newmap->door[1].x = newmap->xPosition;
+    newmap->doors[1]->x = newmap->coordinate.x;
+    newmap->doors[1]->y = (rand() % (newmap->height - 2)) + 1 + (newmap->coordinate.y);
 
     // 밑 문
-    newmap->door[2].x = rand() % (w - 2) + (newmap->xPosition);
-    newmap->door[2].y = (newmap->yPosition) + (newmap->height)-1;
+    newmap->doors[2]->x = (rand() % (newmap->width - 2)) + 1 + (newmap->coordinate.x);
+    newmap->doors[2]->y = (newmap->coordinate.y) + (newmap->height) - 1;
     // 우측문
-    newmap->door[3].y = rand() % (h - 2) + (newmap->yPosition) + 1;
-    newmap->door[3].x = (newmap->xPosition) + (newmap->width) - 1;
+    newmap->doors[3]->x = (newmap->coordinate.x) + (newmap->width) - 1;
+    newmap->doors[3]->y = (rand() % (newmap->height - 2)) + 1 + (newmap->coordinate.y);
 
     return newmap;
 }
 
-Map **mapSetup()
-{
-    int rows = 3; // 장소 수 설정
-    Map **maps = new Map *[rows];
-    maps[0] = createMap(13, 13, 6, 8);
-    maps[1] = createMap(40, 2, 6, 8);
-    maps[2] = createMap(40, 10, 6, 8);
-    connectDoor(maps[0], &(maps[0]->door[3]), maps[2], &(maps[2]->door[1]));
-    return maps;
-}
-
-void drawMap(Map *R)
+void DrawMap(Map *map)
 {
     int x, y;
 
-    // 장소 생성시 위 아래 ------형태로 출력 및 속성 부여
-    for (x = 0; x < R->width; ++x)
+    for (x = map->coordinate.x; x < map->coordinate.x + map->width; ++x)
     {
-        // 상단 경계
-        Gotxy(R->yPosition, R->xPosition + x); 
+        Gotxy(x, map->coordinate.y); // 상단 경계
         cout << "-";
-        SetAttribute(R, 0, x, 1); // 속성: 상단 경계 (벽)
 
-        // 하단 경계
-        Gotxy(R->yPosition + R->height - 1, R->xPosition + x);
+        Gotxy(x, map->coordinate.y + map->height - 1); // 하단 경계
         cout << "-";
-        SetAttribute(R, R->height - 1, x, 1); // 속성: 하단 경계 (벽)
     }
 
-    // 장소 생성시 좌우 |....| 형태로 출력 및 속성 부여
-    for (y = 1; y < R->height - 1; ++y)
+    // 좌우 경계와 내부 그리기
+    for (y = map->coordinate.y + 1; y < map->coordinate.y + map->height - 1; ++y)
     {
-        // 좌측 경계
-        Gotxy(R->yPosition + y, R->xPosition);
+        Gotxy(map->coordinate.x, y); // 좌측 경계
         cout << "|";
-        SetAttribute(R, y, 0, 1); // 속성: 좌측 경계 (벽)
 
-        // 우측 경계
-        Gotxy(R->yPosition + y, R->xPosition + R->width - 1);
+        Gotxy(map->coordinate.x + map->width - 1, y); // 우측 경계
         cout << "|";
-        SetAttribute(R, y, R->width - 1, 1); // 속성: 우측 경계 (벽)
 
-        // 내부 바닥
-        for (x = 1; x < R->width - 1; ++x)
+        for (x = map->coordinate.x + 1; x < map->coordinate.x + map->width - 1; ++x)
         {
-            Gotxy(R->yPosition + y, R->xPosition + x);
+            Gotxy(x, y); // 내부 바닥
             cout << ".";
-            SetAttribute(R, y, x, 0); // 속성: 내부 바닥 (바닥)
         }
     }
-
-    // 문 출력 및 속성 부여
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 4; ++i)
     {
-        Gotxy(R->door[i].y, R->door[i].x);
+        Gotxy(map->doors[i]->x, map->doors[i]->y); // 문 위치
         cout << "D";
-        SetAttribute(R, R->door[i].y - R->yPosition, R->door[i].x - R->xPosition, 2); // 속성: 문
     }
 }
 
-void connectDoor(Map *map1, Position *door1, Map *map2, Position *door2)
+void ConnectDoor(Position *door1, Position *door2)
 {
-    int currentX = door1->x;
-    int currentY = door1->y;
+    Position temp;
+    Position pre;
+
+    int count = 0;
+
+    temp.x = door1->x;
+    temp.y = door1->y;
+    pre = temp;
 
     // 다른 방까지 이동
-    while (currentX != door2->x || currentY != door2->y)
+    while (1)
     {
-        if (currentX != door2->x)
+        // 왼쪽으로 이동
+        if ((abs((temp.x - 1) - door2->x) < abs(temp.x - door2->x)) && (GetCharAtPosition(temp.x - 1, temp.y) == ' '))
         {
-            if (door2->x > currentX)
+            pre.x = temp.x;
+            temp.x = temp.x - 1;
+        }
+        // 오른쪽으로 이동
+        else if ((abs((temp.x + 1) - door2->x) < abs(temp.x - door2->x)) && (GetCharAtPosition(temp.x + 1, temp.y) == ' '))
+        {
+            pre.x = temp.x;
+            temp.x = temp.x + 1;
+        }
+        // 아래로 이동
+        else if ((abs((temp.y + 1) - door2->y) < abs(temp.y - door2->y)) && (GetCharAtPosition(temp.x, temp.y + 1) == ' '))
+        {
+            pre.y = temp.y;
+            temp.y = temp.y + 1;
+        }
+        // 위로 이동
+        else if ((abs((temp.y - 1) - door2->y) < abs(temp.y - door2->y)) && (GetCharAtPosition(temp.x, temp.y - 1) == ' '))
+        {
+            pre.y = temp.y;
+            temp.y = temp.y - 1;
+        }
+        else
+        {
+            if (count == 0)
             {
-                currentX += 1; // 오른쪽으로 한 칸 이동
+                temp = pre;
+                count++;
+                continue;
             }
             else
             {
-                currentX -= 1; // 왼쪽으로 한 칸 이동
-            }
-        }
-        else if (currentY != door2->y)
-        {
-            if (door2->y > currentY)
-            {
-                currentY += 1; // 아래로 한 칸 이동
-            }
-            else
-            {
-                currentY -= 1; // 위로 한 칸 이동
+                break;
             }
         }
 
-        if ((currentX == map1->xPosition + 1 || currentX == map1->xPosition + map1->width - 2) &&
-            (currentY == map1->yPosition + 1 || currentY == map1->yPosition + map1->height - 2))
-        {
-            continue; // 경계를 넘지 않음
-        }
-
-        // 연결 경로 표시
-        Gotxy(currentY, currentX);
+        // 경로 출력
+        Gotxy(temp.x, temp.y);
         cout << "#";
 
-        // 속성 부여
-        if (map1->xPosition <= currentX && currentX < map1->xPosition + map1->width &&
-            map1->yPosition <= currentY && currentY < map1->yPosition + map1->height)
-        {
-            SetAttribute(map1, currentY - map1->yPosition, currentX - map1->xPosition, 0);
-        }
+        // 경로 확인을 위해 대기
+        getchar();
     }
-
-    // 마지막 점에 문 설정
-    Gotxy(door2->y, door2->x);
-    cout << "D";
-    SetAttribute(map2, door2->y - map2->yPosition, door2->x - map2->xPosition, 2);
 }

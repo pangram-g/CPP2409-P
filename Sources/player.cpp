@@ -1,19 +1,18 @@
-#include "player.h"
-using namespace std;
+#include "header.h"
 
-Player::Player() : xPosition(0), yPosition(0), health(20) {}
+Player::Player(int x, int y, int h) : coordinate({x, y}), health(h) {};
 
-Player *playerSetup()
+Player *PlayerSetUp()
 {
-    Player *newPlayer;
-    newPlayer = new Player;
+    Player *user;
+    user = new Player;
 
-    newPlayer->xPosition = 14;
-    newPlayer->yPosition = 14;
-    newPlayer->health = 20;
+    user->coordinate.x = 14;
+    user->coordinate.y = 14;
+    user->health = 14;
 
-    Gotxy(newPlayer->xPosition, newPlayer->yPosition);
-    cout << "@"; // 유저를 나타내는 문자
+    Gotxy(user->coordinate.x, user->coordinate.y);
+    cout << "@";
 
-    return newPlayer;
+    return user;
 }

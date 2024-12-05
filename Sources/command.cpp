@@ -1,66 +1,72 @@
-#include "command.h"
-#include "player.h"
-#include "map.h"
-#include <windows.h>
+#include "header.h"
 
 using namespace std;
 
-
-// 유저 움직임 함수
-void playerMove(int x, int y, Player *user)
-{
-    Gotxy(user->yPosition, user->xPosition);
-    cout << ".";
-    user->xPosition = x;
-    user->yPosition = y;
-    Gotxy(user->yPosition, user->xPosition);
-    cout << "@";
-}
-
-// 장소 유효성 검사
-void checkPosition(int newy, int newx, Player *user, Map *map)
-{
-    // 특정 좌표의 속성 확인
-    int Attribute = GetAttribute(map, newy - map->yPosition, newx - map->xPosition);
-
-    // 속성이 '0' (통로)일 경우에만 이동
-    if (Attribute == 0 || Attribute == 2) {
-        playerMove(newy, newx, user);
-    }
-}
-
+// 유저 이동 함수
 void Handleinput(int input, Player *user, Map *map)
 {
-    int newy;
     int newx;
+    int newy;
     switch (input)
     {
+    // 위 이동
     case 'w':
     case 'W':
-        newy = user->yPosition - 1;
-        newx = user->xPosition;
+        newx = user->coordinate.x;
+        newy = user->coordinate.y - 1;
         break;
+    // 아래 이동
     case 's':
     case 'S':
-        newy = user->yPosition + 1;
-        newx = user->xPosition;
-
+        newx = user->coordinate.x;
+        newy = user->coordinate.y + 1;
         break;
+    // 왼쪽 이동
     case 'a':
     case 'A':
-        newy = user->yPosition;
-        newx = user->xPosition - 1;
-
+        newx = user->coordinate.x - 1;
+        newy = user->coordinate.y;
         break;
+    // 오른쪽 이동
     case 'd':
     case 'D':
-        newy = user->yPosition;
-        newx = user->xPosition + 1;
-
+        newx = user->coordinate.x + 1;
+        newy = user->coordinate.y;
         break;
     default:
         break;
     }
 
-    checkPosition(newx, newy, user, map);
+    CheckPosition(newx, newy, user);
+}
+
+// 유저 움직임 함수
+void PlayerMove(int x, int y, Player *user, char c)
+{
+    Gotxy(user->coordinate.x, user->coordinate.y);
+    cout << c;
+    user->coordinate.x = x;
+    user->coordinate.y = y;
+    Gotxy(user->coordinate.x, user->coordinate.y);
+    cout << "@";
+}
+
+// 장소 유효성 검사
+void CheckPosition(int newx, int newy, Player *user)
+{
+    char ch = GetCharAtPosition(newx, newy);
+    switch (ch)
+    {
+    case '.':
+        PlayerMove(newx, newy, user, '.');
+        break;
+    case '#':
+        PlayerMove(newx, newy, user, '#');
+        break;
+    case 'D':
+        PlayerMove(newx, newy, user, '.');
+        break;
+    default:
+        break;
+    }
 }
