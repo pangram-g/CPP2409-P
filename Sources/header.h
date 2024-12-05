@@ -3,11 +3,9 @@
 #include <windows.h>
 #include <conio.h>
 #include <limits.h>
-//#include <ncurses/ncurses.h>
+#include <ncurses/ncurses.h>
 using namespace std;
 
-void Gotxy(int x, int y);
-char GetCharAtPosition(int x, int y);
 
 class Position
 {
@@ -60,10 +58,12 @@ void ConnectDoor(Position *door1, Position *door2);
 Player *PlayerSetUp();
 
 // 기능 함수
-void PlayerMove(int y, int x, Player *user);
-void Handleinput(int input, Player *user, Map *map);
+void PlayerMove(int x, int y, Player *user);
+void Handleinput(int input, Player *user);
 void CheckPosition(int newy, int newx, Player *user); // 장소 유효성 검사
 
 // 몬스터 함수
-Monster *MonsterSetting(int x, int y, int w);
+Monster *CreateMonster(int x, int y, int w);
+void MonsterSetting();
 int AddMonster();
+void SetStartPosition(Monster *monster, Map *map);

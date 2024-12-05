@@ -1,43 +1,6 @@
 #include "header.h"
 
-// 특정 좌표로 커서 옮기기
-void Gotxy(int x, int y)
-{
-    if (x < 0)
-        x = 0;
-    if (y < 0)
-        y = 0;
-    COORD Pos = {static_cast<SHORT>(x), static_cast<SHORT>(y)};
-    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Pos);
-}
 
-// 특정 좌표의 문자를 읽는 함수
-char GetCharAtPosition(int x, int y) {
-    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE); // 콘솔 핸들
-    if (hConsole == INVALID_HANDLE_VALUE) {
-        std::cerr << "Invalid console handle.\n";
-        return '\0';
-    }
-
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    if (!GetConsoleScreenBufferInfo(hConsole, &csbi)) {
-        std::cerr << "Failed to get console screen buffer info.\n";
-        return '\0';
-    }
-
-    CHAR_INFO charInfo;
-    COORD bufferSize = {1, 1};
-    COORD bufferCoord = {0, 0};
-    SMALL_RECT readRegion = {static_cast<SHORT>(x), static_cast<SHORT>(y),
-                             static_cast<SHORT>(x), static_cast<SHORT>(y)};
-
-    if (!ReadConsoleOutput(hConsole, &charInfo, bufferSize, bufferCoord, &readRegion)) {
-        std::cerr << "Failed to read character at (" << x << ", " << y << ")\n";
-        return '\0';
-    }
-
-    return charInfo.Char.AsciiChar; // 읽은 문자 반환
-}
 
 /*void PathFinding(Position *s, Position *e)
 {

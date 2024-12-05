@@ -3,7 +3,7 @@
 using namespace std;
 
 // 유저 이동 함수
-void Handleinput(int input, Player *user, Map *map)
+void Handleinput(int input, Player *user)
 {
     int newx;
     int newy;
@@ -41,32 +41,28 @@ void Handleinput(int input, Player *user, Map *map)
 }
 
 // 유저 움직임 함수
-void PlayerMove(int x, int y, Player *user, char c)
+void PlayerMove(int x, int y, Player *user)
 {
-    Gotxy(user->coordinate.x, user->coordinate.y);
-    cout << c;
+    mvprintw(user->coordinate.y, user->coordinate.x, ".");
     user->coordinate.x = x;
     user->coordinate.y = y;
-    Gotxy(user->coordinate.x, user->coordinate.y);
-    cout << "@";
+    mvprintw(user->coordinate.y, user->coordinate.x, "@");
+    move(user->coordinate.y, user->coordinate.x);
 }
 
 // 장소 유효성 검사
 void CheckPosition(int newx, int newy, Player *user)
 {
-    char ch = GetCharAtPosition(newx, newy);
-    switch (ch)
+    int space;
+    switch (mvinch(newy,newx))
     {
     case '.':
-        PlayerMove(newx, newy, user, '.');
-        break;
     case '#':
-        PlayerMove(newx, newy, user, '#');
-        break;
     case 'D':
-        PlayerMove(newx, newy, user, '.');
+        PlayerMove(newx, newy, user);
         break;
     default:
+        move(user->coordinate.y, user->coordinate.x);
         break;
     }
 }

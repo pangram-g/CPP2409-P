@@ -11,8 +11,7 @@ Player *PlayerSetUp()
     user->coordinate.y = 14;
     user->health = 14;
 
-    Gotxy(user->coordinate.x, user->coordinate.y);
-    cout << "@";
+    mvprintw(user->coordinate.y,user->coordinate.x,"@");
 
     return user;
 }

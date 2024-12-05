@@ -60,32 +60,24 @@ void DrawMap(Map *map)
 
     for (x = map->coordinate.x; x < map->coordinate.x + map->width; ++x)
     {
-        Gotxy(x, map->coordinate.y); // 상단 경계
-        cout << "-";
-
-        Gotxy(x, map->coordinate.y + map->height - 1); // 하단 경계
-        cout << "-";
+        mvprintw(map->coordinate.y, x, "-");                   // 상단
+        mvprintw(map->coordinate.y + map->height - 1, x, "-"); // 하단
     }
 
     // 좌우 경계와 내부 그리기
     for (y = map->coordinate.y + 1; y < map->coordinate.y + map->height - 1; ++y)
     {
-        Gotxy(map->coordinate.x, y); // 좌측 경계
-        cout << "|";
-
-        Gotxy(map->coordinate.x + map->width - 1, y); // 우측 경계
-        cout << "|";
+        mvprintw(y, map->coordinate.x, "|");                   // 좌측
+        mvprintw(y, map->coordinate.x + map->width - 1, "|"); // 우측
 
         for (x = map->coordinate.x + 1; x < map->coordinate.x + map->width - 1; ++x)
         {
-            Gotxy(x, y); // 내부 바닥
-            cout << ".";
+            mvprintw(y, x, ".");
         }
     }
     for (int i = 0; i < 4; ++i)
     {
-        Gotxy(map->doors[i]->x, map->doors[i]->y); // 문 위치
-        cout << "D";
+        mvprintw(map->doors[i]->y, map->doors[i]->x, "D");
     }
 }
 
@@ -104,25 +96,25 @@ void ConnectDoor(Position *door1, Position *door2)
     while (1)
     {
         // 왼쪽으로 이동
-        if ((abs((temp.x - 1) - door2->x) < abs(temp.x - door2->x)) && (GetCharAtPosition(temp.x - 1, temp.y) == ' '))
+        if ((abs((temp.x - 1) - door2->x) < abs(temp.x - door2->x)) && (mvinch(temp.y, temp.x - 1) == ' '))
         {
             pre.x = temp.x;
             temp.x = temp.x - 1;
         }
         // 오른쪽으로 이동
-        else if ((abs((temp.x + 1) - door2->x) < abs(temp.x - door2->x)) && (GetCharAtPosition(temp.x + 1, temp.y) == ' '))
+        else if ((abs((temp.x + 1) - door2->x) < abs(temp.x - door2->x)) && (mvinch(temp.y, temp.x + 1) == ' '))
         {
             pre.x = temp.x;
             temp.x = temp.x + 1;
         }
         // 아래로 이동
-        else if ((abs((temp.y + 1) - door2->y) < abs(temp.y - door2->y)) && (GetCharAtPosition(temp.x, temp.y + 1) == ' '))
+        else if ((abs((temp.y + 1) - door2->y) < abs(temp.y - door2->y)) && (mvinch(temp.y + 1, temp.x) == ' '))
         {
             pre.y = temp.y;
             temp.y = temp.y + 1;
         }
         // 위로 이동
-        else if ((abs((temp.y - 1) - door2->y) < abs(temp.y - door2->y)) && (GetCharAtPosition(temp.x, temp.y - 1) == ' '))
+        else if ((abs((temp.y - 1) - door2->y) < abs(temp.y - door2->y)) && (mvinch(temp.y - 1, temp.x) == ' '))
         {
             pre.y = temp.y;
             temp.y = temp.y - 1;
@@ -142,8 +134,7 @@ void ConnectDoor(Position *door1, Position *door2)
         }
 
         // 경로 출력
-        Gotxy(temp.x, temp.y);
-        cout << "#";
+        mvprintw(temp.y, temp.x, "#");
 
         // 경로 확인을 위해 대기
         getchar();
