@@ -2,31 +2,26 @@
 
 int main()
 {
-    initscr();
-    noecho();
-    mvprintw(0, 0, "Test output");
-    refresh();
-    int ch;
-    // Map map(0,0,10,10);
-    Map **maps = MapSetUp();
-    for (int i = 0; i < 3; ++i)
-    {
-        DrawMap(maps[i]); // 생성된 맵들을 차례로 화면에 출력
-    }
-    Player *user = PlayerSetUp();
-    mvprintw(10, 5, "Hello at (5, 10)"); // 콘솔 커서를 (5, 10)으로 이동
+    ScreenSetUp();
 
-    // getch();
-    while ((ch = getch()) != 'q')
-    {
-        Handleinput(ch, user);
-    }
+    char ch;
+    Game game;
+    game.currentlevel = 0;
+    Position *position;
+    Level *level;
 
-    for (int i = 0; i < 3; ++i)
+    // level = LevelSetUp(1);
+    // CoutGameInformation(level);
+    /*for (int i = 0; i < 50; i++)
     {
-        delete maps[i];
+        mvprintw(i, 0, "%d", i % 10);
     }
-    delete[] maps;
+    for (int i = 1; i < 100; i++)
+    {
+        mvprintw(0, i, "%d", i % 10);
+    }*/
+
+    GameLoop(&game);
 
     endwin();
     return 0;
